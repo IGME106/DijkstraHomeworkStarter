@@ -33,11 +33,11 @@ namespace DijkstraHomeworkStarter
 
 		// The currently selected source vertex
 		Vertex selectedVertex;
-		#endregion
+        #endregion
 
-		#region Constants
-		// The maximum number of vertices
-		public const int MAX_VERTICES = 10;
+        #region Constants
+        // The maximum number of vertices
+        public const int MAX_VERTICES = 10;
 
 		// The "width" of an edge when drawn
 		public const int EDGE_WIDTH = 2;
@@ -80,7 +80,7 @@ namespace DijkstraHomeworkStarter
 			// Create a 1x1 white pixel texture
 			pixel = new Texture2D(device, 1, 1);
 			pixel.SetData<Color>(new Color[] { Color.White });
-		}
+        }
 		#endregion
 
 		#region Add Methods
@@ -357,14 +357,165 @@ namespace DijkstraHomeworkStarter
 		/// </summary>
 		public void FindAndHighlightShortestPaths(Vertex v)
 		{
-			// Implement this method!
+            // Implement this method!
+            v.Permanent = true;
+            v.Distance = 0;
+
+            bool nonPermanentVertex;            
+            List<Vertex> adjacentsList = new List<Vertex>();
+
+            PriorityQueue priorityQueue = new PriorityQueue();
+            priorityQueue.Enqueue(v);
+
+            do
+            {
+                int vertexCounter = 0;
+                nonPermanentVertex = false;
+
+                do
+                {
+                    if (!vertices[vertexCounter].Permanent)
+                    {
+                        nonPermanentVertex = true;
+                    }
+
+                    vertexCounter++;
+
+                } while ((!nonPermanentVertex) && (vertexCounter < vertices.Count));
+
+                adjacentsList = GetAdjacents(priorityQueue.Peek(), priorityQueue);                
+
+                priorityQueue.Dequeue();
+
+                adjacentsList.Clear();
+
+            } while (nonPermanentVertex);
 
 			// To highlight a path, use the HighlightPath method.  It takes two vertices as parameters.
 		}
 
-		// Feel free to add any helper methods you may need!
+        private void UpdateDistances(Vertex rootNode, List<Vertex> adjacentsList)
+        {            
+            int distanceBetweenNodes = int.MaxValue;
+
+            int vertices = adjacentsList.Count;
+            int permanentVertices = 0;
+
+            foreach (Vertex vertex in adjacentsList)
+            {
+                if (vertex.Permanent)
+                {
+                    permanentVertices++;
+                }
+            }
+
+            if (permanentVertices == vertices)
+            {
+                rootNode.Permanent = true;
+            }
+            else
+            {
+                foreach (Vertex vertex in adjacentsList)
+                {
+                    distanceBetweenNodes = adjMatrix[vertNameToIndex[rootNode.Name], vertNameToIndex[vertex.Name]] + rootNode.Distance;
+
+                    if (((vertex.PreviousVertex == null) || (vertex.Distance > distanceBetweenNodes)) && (!vertex.Permanent))
+                    {
+                        vertex.PreviousVertex = rootNode;
+                        vertex.Distance = distanceBetweenNodes;
+                    }
+                }
+
+                SetPermanent(adjacentsList);
+            }
+        }
+
+        private void SetPermanent(List<Vertex> adjacentsList)
+        {
+            Vertex closestVertex = null;
+            bool foundNonPermanent = false;
+            int incrementor = 0;
+
+            do
+            {
+                if (!adjacentsList[incrementor].Permanent)
+                {
+                    closestVertex = adjacentsList[incrementor];
+                    foundNonPermanent = true;
+                }
+
+                incrementor++;
+
+            } while ((!foundNonPermanent) && (incrementor < adjacentsList.Count));
+
+            if (closestVertex != null)
+            {
+                if (adjacentsList.Count > 1)
+                {
+                    for (int i = 1; i < adjacentsList.Count; i++)
+                    {
+                        if ((adjacentsList[i].Distance < closestVertex.Distance) && (!adjacentsList[i].Permanent))
+                        {
+                            closestVertex = adjacentsList[i];
+                        }
+                    }
+                }
+
+                vertices[vertNameToIndex[closestVertex.Name]].Permanent = true;
+            }            
+        }
+
+        // Feel free to add any helper methods you may need!
+        // <summary>
+        /// Return the name (key) of the next unvisited vertex
+        /// </summary>
+        /// <param name="name">Name/Key of the Dictionary item to look for</param>
+        /// <returns>Vertex of the next, previously unvisited vertex</returns>
+        public List<Vertex> GetAdjacents(Vertex keyVertex, PriorityQueue priorityQueue)
+        {
+            List<Vertex> returnValue = new List<Vertex>();
+
+            int indexOfVertexInList = 0;
+            int incrementor = 0;
+            
+            if (vertNameToIndex.ContainsKey(keyVertex.Name))                                // Test if the key exists in the dictionary
+            {
+                indexOfVertexInList = vertices.IndexOf(keyVertex);                          // Get the index of the vertex
+
+                do                                                                          // Loop through vertices until one is found that
+                {                                                                           // wasn't found before
+                    if (adjMatrix[indexOfVertexInList, incrementor] != 0)
+                    {
+                        returnValue.Add(vertices[incrementor]);                               // Return the next vertex
+
+                        if ((!priorityQueue.Contains(vertices[incrementor])) && (!vertices[incrementor].Permanent))
+                        {
+                            priorityQueue.Enqueue(vertices[incrementor]);
+                        }                        
+                    }
+
+                    incrementor++;                                                          // do/while incrementor
+
+                } while (incrementor < adjMatrix.GetLength(1));        // Once we find a vertex, or get to the end of the matrix, break
+            }
+
+            UpdateDistances(priorityQueue.Peek(), returnValue);
+
+            return returnValue;
+        }
 
 
-		#endregion
-	}
+        /// <summary>
+        /// Set Visited properties to false
+        /// </summary>
+        public void ResetVisited()
+        {
+            foreach (Vertex vertex in vertices)
+            {
+                vertex.Reset();
+            }
+        }
+
+        #endregion
+    }
 }
