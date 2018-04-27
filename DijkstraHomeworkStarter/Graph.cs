@@ -7,6 +7,16 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
 
+/// <summary>
+/// IGME-106 - Game Development and Algorithmic Problem Solving
+/// Homework 5
+/// Class Description   : Graph with Dijkstra's algorithm implementation
+/// Author              : Benjamin Kleynhans
+/// Modified By         : Benjamin Kleynhans
+/// Date                : April 26, 2018
+/// Filename            : Graph.cs
+/// </summary>
+
 namespace DijkstraHomeworkStarter
 {
     class Graph
@@ -358,7 +368,7 @@ namespace DijkstraHomeworkStarter
         public void FindAndHighlightShortestPaths(Vertex v)
         {
             // Implement this method!
-            ResetVertices();
+            v.Reset();
 
             v.Permanent = true;
             v.Distance = 0;
@@ -368,17 +378,16 @@ namespace DijkstraHomeworkStarter
             PriorityQueue priorityQueue = new PriorityQueue();
             priorityQueue.Enqueue(v);
 
-            do
+            do                                                                              // Repeat while there are non-permanent nodes
             {
-                if (priorityQueue.Count > 0)
+                if (priorityQueue.Count > 0)                                                // Continue while the queue is not empty
                 {
-                    adjacentsList.Clear();
+                    adjacentsList.Clear();                                                  // Clear the adjacency list
 
-                    GetAdjacents(priorityQueue.Peek(), priorityQueue);
+                    GetAdjacents(priorityQueue.Peek(), priorityQueue);                      // Get the adjacent nodes with their weights
 
-
-                    priorityQueue.Peek().Permanent = true;
-                    priorityQueue.Dequeue();  
+                    priorityQueue.Peek().Permanent = true;                                  // Make current node permanent
+                    priorityQueue.Dequeue();                                                // Remove it from the queue
                 }
 
             } while (ContainsNonPermanent());
@@ -392,7 +401,11 @@ namespace DijkstraHomeworkStarter
                 }
             }
         }
-
+        
+        /// <summary>
+        /// Tests if there are any non-permanent nodes left in the graph
+        /// </summary>
+        /// <returns>True or False</returns>
         private bool ContainsNonPermanent()
         {
             bool returnValue = false;
@@ -401,20 +414,22 @@ namespace DijkstraHomeworkStarter
             {
                 if (!vertex.Permanent)
                 {
-                    returnValue = true;
+                    returnValue = true;                                                     // If a vertex is found that is not permanent, break
                 }
             }
 
             return returnValue;
         }
 
-
         // Feel free to add any helper methods you may need!
         // <summary>
-        /// Return the name (key) of the next unvisited vertex
+        
+        /// <summary>
+        /// Determines all nodes that are adjacent to the current source node
         /// </summary>
-        /// <param name="name">Name/Key of the Dictionary item to look for</param>
-        /// <returns>Vertex of the next, previously unvisited vertex</returns>
+        /// <param name="sourceVertex">Vertex from which we are searching for adjacent nodes</param>
+        /// <param name="priorityQueue">The priority queue used in the program</param>
+        /// <returns></returns>
         public List<Vertex> GetAdjacents(Vertex sourceVertex, PriorityQueue priorityQueue)
         {
             List<Vertex> returnValue = new List<Vertex>();
@@ -424,32 +439,30 @@ namespace DijkstraHomeworkStarter
             int distanceBetweenSourceAndNode;
             int distanceToRoot;
 
-            if (vertNameToIndex.ContainsKey(sourceVertex.Name))                                // Test if the key exists in the dictionary
+            if (vertNameToIndex.ContainsKey(sourceVertex.Name))                             // Test if the key exists in the dictionary
             {
-                indexOfVertexInList = vertices.IndexOf(sourceVertex);                          // Get the index of the vertex
+                indexOfVertexInList = vertices.IndexOf(sourceVertex);                       // Get the index of the vertex
 
-                do                                                                          // Loop through vertices until one is found that
-                {                                                                           // wasn't found before
-                    if (adjMatrix[indexOfVertexInList, incrementor] != 0)
+                do
+                {
+                    if (adjMatrix[indexOfVertexInList, incrementor] != 0)                   // Test if there is an adjacent relationship
                     {
-                        if ((!vertices[incrementor].Permanent) &&
+                        if ((!vertices[incrementor].Permanent) &&                           // If the vertices is not permanent and not the source
                             (vertices[incrementor] != sourceVertex))
-                        {
-                            Console.WriteLine(priorityQueue.ToString());
-
-
+                        {                                                                   // Calculate the distances between nodes
                             distanceBetweenSourceAndNode = adjMatrix[vertNameToIndex[sourceVertex.Name], vertNameToIndex[vertices[incrementor].Name]];
-
+                                                                                            // Test that the node is not permanent
                             if ((distanceBetweenSourceAndNode != 0) && (!vertices[incrementor].Permanent))
-                            {
+                            {                                                               // Calculate the distance to the root node
                                 distanceToRoot = sourceVertex.Distance + distanceBetweenSourceAndNode;
+                                                                                            // Test if the current node has a lower cost than the previosu node
                                 if (distanceToRoot < vertices[incrementor].Distance)
                                 {
                                     vertices[incrementor].PreviousVertex = sourceVertex;
                                     vertices[incrementor].Distance = distanceToRoot;
                                 }
                             }
-                            
+                                                                                            // If the queue already contains this node, replace it with the lower cost node
                             if (!priorityQueue.Contains(vertices[incrementor]))
                             {
                                 priorityQueue.Enqueue(vertices[incrementor]);
@@ -463,21 +476,10 @@ namespace DijkstraHomeworkStarter
 
                     incrementor++;                                                          // do/while incrementor
 
-                } while (incrementor < adjMatrix.GetLength(1));        // Once we find a vertex, or get to the end of the matrix, break
+                } while (incrementor < adjMatrix.GetLength(1));                             // Once we find a vertex, or get to the end of the matrix, break
             }
 
             return returnValue;
-        }
-
-        private void ResetVertices()
-        {
-            foreach (Vertex vertex in vertices)
-            {
-                if (!vertex.Permanent)
-                {
-                    vertex.Reset();
-                }
-            }
         }
 
         #endregion

@@ -10,11 +10,11 @@ using Microsoft.Xna.Framework.Input;
 
 /// <summary>
 /// IGME-106 - Game Development and Algorithmic Problem Solving
-/// Practice exercise 20
+/// Homework 5
 /// Class Description   : Priority Queue implementation
 /// Author              : Benjamin Kleynhans
 /// Modified By         : Benjamin Kleynhans
-/// Date                : April 23, 2018
+/// Date                : April 26, 2018
 /// Filename            : PriorityQueue.cs
 /// </summary>
 
@@ -79,7 +79,7 @@ namespace DijkstraHomeworkStarter
 
             if (ObjectList.Count > 0)
             {
-                UpdatePriority();                                                               // Organize the queue so the next priority element is in front
+                UpdatePriority();                                                           // Organize the queue so the next priority element is in front
             }
 
             return returnValue;
@@ -149,6 +149,11 @@ namespace DijkstraHomeworkStarter
             return returnValue;
         }
 
+        /// <summary>
+        /// Select a specific instance of a vertex from the queue
+        /// </summary>
+        /// <param name="vertex">Vertex of which the equivalent needs to be returned</param>
+        /// <returns>The actual Vertex from the queue</returns>
         public Vertex VertexFromQueue(Vertex vertex)
         {
             Vertex returnValue = null;
@@ -158,6 +163,11 @@ namespace DijkstraHomeworkStarter
             return returnValue;
         }
 
+        /// <summary>
+        /// Return the numeric index of the specified object in the queue
+        /// </summary>
+        /// <param name="objectName">Name of the vertex to retrieve</param>
+        /// <returns>Index of the vertex within the queue</returns>
         public int GetIndex(string objectName)
         {
             int returnValue = 0;
@@ -173,11 +183,20 @@ namespace DijkstraHomeworkStarter
             return returnValue;
         }
 
+        /// <summary>
+        /// Allows the replacement of a specific vertex in the queue based on vertex name
+        /// </summary>
+        /// <param name="vertex">Vertex that the one in the list needs to be replaced with</param>
         public void ReplaceVertex(Vertex vertex)
         {
             ObjectList[GetIndex(vertex.Name)] = vertex;
         }
 
+        /// <summary>
+        /// Allows the replacement of a specific vertex in teh queue based on index number
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="vertex"></param>
         public void UpdateVertexAt(int index, Vertex vertex)
         {
             ObjectList[index] = vertex;
