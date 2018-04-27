@@ -59,8 +59,23 @@ namespace DijkstraHomeworkStarter
         {
             Vertex returnValue = null;
 
-            returnValue = ObjectList[0];
-            ObjectList.RemoveAt(0);
+            try
+            {
+                if (ObjectList.Count > 0)
+                {
+                    returnValue = ObjectList[0];
+                    ObjectList.RemoveAt(0);
+                }                
+            }
+            catch (Exception thisException)
+            {
+                if (thisException is ArgumentOutOfRangeException ||
+                    thisException is IndexOutOfRangeException)
+                {
+                    throw new IndexOutOfRangeException(thisException.Message);
+                }
+
+            }
 
             if (ObjectList.Count > 0)
             {
@@ -78,7 +93,22 @@ namespace DijkstraHomeworkStarter
         {
             Vertex returnValue = null;
 
-            returnValue = ObjectList[0];
+            try
+            {
+                if (ObjectList.Count > 0)
+                {
+                    returnValue = ObjectList[0];
+                }                
+            }
+            catch (Exception thisException)
+            {
+                if (thisException is ArgumentOutOfRangeException ||
+                    thisException is IndexOutOfRangeException)
+                {
+                    throw new IndexOutOfRangeException(thisException.Message);
+                }
+                
+            }            
 
             return returnValue;
         }
@@ -117,6 +147,40 @@ namespace DijkstraHomeworkStarter
             }
 
             return returnValue;
+        }
+
+        public Vertex VertexFromQueue(Vertex vertex)
+        {
+            Vertex returnValue = null;
+
+            returnValue = ObjectList[GetIndex(vertex.Name)];
+
+            return returnValue;
+        }
+
+        public int GetIndex(string objectName)
+        {
+            int returnValue = 0;
+
+            foreach (Vertex vertex in ObjectList)
+            {
+                if (vertex.Name.Equals(objectName))
+                {
+                    returnValue = ObjectList.IndexOf(vertex);
+                }
+            }
+
+            return returnValue;
+        }
+
+        public void ReplaceVertex(Vertex vertex)
+        {
+            ObjectList[GetIndex(vertex.Name)] = vertex;
+        }
+
+        public void UpdateVertexAt(int index, Vertex vertex)
+        {
+            ObjectList[index] = vertex;
         }
 
         /// <summary>
